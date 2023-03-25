@@ -1,22 +1,24 @@
 # Sentiment Analyzer Web App
 
-A flask (Python) Web Interface for sentiment analysis using NLP techniques.
+#Financial sentences Sentiment Analyzer Python Web App
+
+A web interface that performs sentiment analysis using machine learning
 
 #### Basic Features
 * Remove stop words 
 * Pre-process text (remove punctuation, lower case)
-* Stemming of words
+* Lemmatization of words
 
 #### Sentiment Analysis
-* Shows how much text content is positive
+* Show the sentiment of the finanancial statement
 
 
 ### Prerequisites
 
-This app is built using **Python 3.6.6**
+This app is built using **Python 3.9**
 
 ## Start Service
-Now, to start the application, do the following:
+To start the application, do the following:
 
     python app.py
 
