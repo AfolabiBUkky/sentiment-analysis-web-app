@@ -1,4 +1,4 @@
-#Financial sentences Sentiment Analyzer Python Web App
+#Covid-19 Sentiment Classifier WebApp
 
 A web interface that performs sentiment analysis using machine learning
 
@@ -8,7 +8,7 @@ A web interface that performs sentiment analysis using machine learning
 * Lemmatization of words
 
 #### Sentiment Analysis
-* Show the sentiment of the finanancial statement
+* Show the sentiment of the Covid-19 vaccine tweets
 
 
 ### Prerequisites
@@ -40,7 +40,7 @@ when the prediction is made, a report can be download with 0 = negative and 1 = 
 </p>
 
 
-## Use Heroku app
+## Use Azure app
 
 The app can be tested on heroku [sentiment-analyzer3.herokuapp.com/](https://sentiment-analyzer3.herokuapp.com/).
 
