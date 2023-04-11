@@ -1,5 +1,3 @@
-# Sentiment Analyzer Web App
-
 #Financial sentences Sentiment Analyzer Python Web App
 
 A web interface that performs sentiment analysis using machine learning
@@ -18,7 +16,7 @@ A web interface that performs sentiment analysis using machine learning
 This app is built using **Python 3.9**
 
 ## Start Service
-To start the application, do the following:
+Now, to start the application, do the following:
 
     python app.py
 
@@ -26,6 +24,10 @@ Server will start and  you can connect by opening the web browser and connecting
 
     http://127.0.0.1:5002/
 
+### Batch Upload
+
+TO succesfully upload a file, the file type must be CSV and also, the column containing the tweet for sentiment analysis must be named "text".
+when the prediction is made, a report can be download with 0 = negative and 1 = positive sentiments
 
 ### Some Screenshots
 

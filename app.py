@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, send_file
 from sklearn.feature_extraction.text import TfidfVectorizer
 import nltk
 from string import punctuation
@@ -14,48 +14,109 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import accuracy_score
 from sklearn.feature_extraction.text import CountVectorizer
 import pickle
+#import StringIO
+#import csv
+from flask import make_response
 
 nltk.download('stopwords')
 
 set(stopwords.words('english'))
 
 app = Flask(__name__)
-
+pred= None
 @app.route('/')
 def my_form():
     return render_template('form.html')
 
 @app.route('/', methods=['POST'])
 def my_form_post():
-    final =False
-    #convert to lowercase
-    text1 = request.form['text1'].lower()
-    if text1!="" and text1!= None:
-        final=True
+    final = False
+
+    label = {0: "negative", 1: "positive"}
+
+    # Content validation
+    text = request.form['text1'].lower()
+
+    if text == "" or text == None:
+        final = False
+        return render_template('form.html', final=final)
+
+    else:
+        data = [clean_text(text)]
+        prediction = inference(data)
+        output = f'"{text}" is {label[int(prediction[0])]}'
+
+        return render_template('form.html', final=True, is_file=False, result=output)
     
-    x=[text1]
+@app.route('/upload', methods = ['POST', 'GET'])
+def upload():
+    if request.method == 'POST':
+        f = request.files['file']
+        data = pd.read_csv(f)
+
+        #Extract the sentiment and sentence columns
+        text_data = []
+        for data in data["text"]:
+            if isinstance(data, str):
+                text_data.append(clean_text(data))
+            else:
+                text_data.append('')
+
+        prediction = inference(text_data)
+        
+        # classes = list(set(prediction))
+        pos = round(len([a for a in prediction if int(a) == 1]) / len(prediction)*100,2)
+        neg = round(len([a for a in prediction if int(a) == 0]) / len(prediction)*100, 2)
+        data["prediction"] = prediction
+        data.to_csv("temp/prediction.csv")
+
+        return render_template('form.html', final=True, is_file=True, result=str(prediction), positive=pos, negative=neg, data=data)
+    
+
+def inference(data):
+
     model_pickle = pickle.load(open('model.pkl','rb'))
     Tfidf_pickle = pickle.load(open('vectorizer.pkl','rb'))
-    label_enc= pickle.load(open('label_enc.pkl','rb'))
+    label_enc = pickle.load(open('label_enc.pkl','rb'))
 
     lemmatizer = WordNetLemmatizer()
     lemmatized_messages = []
 
-    for message in x:
+    for message in data:
         lemmatized_message = " ".join([lemmatizer.lemmatize(word,pos="v") for word in message.split()])
         lemmatized_messages.append(lemmatized_message)
 
 
     X = Tfidf_pickle.transform(lemmatized_messages)
 
-    y=model_pickle.predict(X)
-    y=label_enc.inverse_transform(y)
+    y = model_pickle.predict(X)
+    #y = label_enc.inverse_transform(y)
 
-    result=f'"{text1}" is {y[0]}'
-   
+    return y
+    
+@app.route('/download')
+def download_csv():
+    return send_file('temp/prediction.csv',
+                     mimetype='text/csv',
+                     attachment_filename='report.csv',
+                     as_attachment=True)
 
-    return render_template('form.html',final=final, result=result)
-    #return render_template('form.html', final=compound, text1=text_final,text2=dd['pos'],text5=dd['neg'],text4=compound,text3=dd['neu'])
+#data preprocessing 
+def clean_text(text):
+    # Remove Twitter #tags and @usernames
+    text = re.sub(r'#\w+', '', text)
+    text = re.sub(r'@\w+', '', text)
+    
+    # Remove URLs
+    text = re.sub(r'http\S+', '', text)
+    
+    # Remove punctuation
+    text = re.sub(r'[^\w\s]', '', text)
+    
+    # Convert to lowercase
+    text = text.lower()
+    
+    return text
 
 if __name__ == "__main__":
     app.run(debug=True, host="127.0.0.1", port=5002, threaded=True)
